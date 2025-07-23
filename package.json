@@ -5,9 +5,9 @@
   "type": "module",
   "main": "./dist-electron/main",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development && npm-run-all build:react transpile:electron dev:electron dev:react",
+    "dev": "npm-run-all --parallel transpile:electron dev:electron dev:react",
     "dev:react": "vite",
-    "dev:electron": "electron .",
+    "dev:electron": "cross-env NODE_ENV=development electron .",
     "build:react": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
