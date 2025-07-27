@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "types": ["../shared/types"],
         "target": "esnext",
         "module": "nodenext",
         "outDir": "../../dist-electron",

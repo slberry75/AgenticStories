@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./dist-electron/main",
   "scripts": {
-    "dev": "npm-run-all --parallel transpile:electron dev:electron dev:react",
+    "dev": "npm-run-all transpile:electron  --parallel dev:electron dev:react",
     "dev:react": "vite",
     "dev:electron": "cross-env NODE_ENV=development electron .",
     "build:react": "tsc -b && vite build",
