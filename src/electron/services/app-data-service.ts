@@ -1,8 +1,8 @@
 import { app } from "electron";
 import path from "path";
 import fs from "fs";
-import os from "os";
-import { writeJsonFileAtomic } from "../utils.js";
+import { debug, writeJsonFileAtomic } from "../utils.js";
+import { ServiceResult } from "../../shared/lib.js";
 
 export class AppDataService {
 
@@ -14,7 +14,7 @@ export class AppDataService {
     constructor() {
         this.appDataPath = app.getPath('userData');
         this.recentProjectsPath = path.join(this.appDataPath, 'recent-projects.json');
-        console.log({
+        debug({
             appDataPath: this.appDataPath, 
             recentProjectsPath: this.recentProjectsPath
         });
@@ -31,31 +31,28 @@ export class AppDataService {
     }
 
     async loadRecentProjects(): Promise<ServiceResult<ProjectInfo[]>> {
-        let result:ServiceResult<ProjectInfo[]> = {
-            success: false,
-        };
+        // let result:ServiceResult<ProjectInfo[]> = {
+        //     success: false,
+        // };
         try {
             const fileContents = await fs.promises.readFile(this.recentProjectsPath, {encoding: 'utf-8'});
             
             try {
-                result.data = JSON.parse(fileContents);
-                result.success = true;
+                return ServiceResult.fromJson<ProjectInfo[]>(fileContents);
             }  catch (ex) {
-                    result.error = {
-                        type: 'validation',
-                        message: 'Failed to parse recent projects file',
-                        details: ex instanceof Error ? ex.message + (ex.stack ?? '') : undefined
-                    };
+                return ServiceResult.fail({
+                    type: 'validation',
+                    message: 'Failed to parse recent projects file',
+                    details: ex instanceof Error ? ex.message + (ex.stack ?? '') : undefined
+                });
             }
         }  catch {
-            result.error = {
+            return ServiceResult.fail({
                 type: 'filesystem',
                 message: 'Failed to read recent projects file',
                 details: this.recentProjectsPath
-            };
+            });
             this.initializeAppData();
-        } finally {
-            return result;
         }        
     }
 
