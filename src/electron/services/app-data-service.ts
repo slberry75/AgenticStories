@@ -2,7 +2,7 @@ import { app } from "electron";
 import path from "path";
 import fs from "fs";
 import { debug, writeJsonFileAtomic } from "../utils.js";
-import { ServiceResult } from "../../shared/lib.js";
+import { ServiceResult } from "../../shared/lib/service-objects.js";
 
 export class AppDataService {
 
@@ -31,9 +31,6 @@ export class AppDataService {
     }
 
     async loadRecentProjects(): Promise<ServiceResult<ProjectInfo[]>> {
-        // let result:ServiceResult<ProjectInfo[]> = {
-        //     success: false,
-        // };
         try {
             const fileContents = await fs.promises.readFile(this.recentProjectsPath, {encoding: 'utf-8'});
             

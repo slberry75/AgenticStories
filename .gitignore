@@ -11,6 +11,8 @@ node_modules
 dist
 dist-react
 dist-electron
+flattened
+CodeFlattened_Output
 *.local
 
 # Editor directories and files

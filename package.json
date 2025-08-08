@@ -5,10 +5,11 @@
   "type": "module",
   "main": "./dist-electron/main",
   "scripts": {
-    "dev": "npm-run-all transpile:electron  --parallel dev:electron dev:react",
+    "dev": "npm-run-all build:templates transpile:electron  --parallel dev:electron dev:react",
     "dev:react": "vite",
     "dev:electron": "cross-env NODE_ENV=development electron .",
     "build:react": "tsc -b && vite build",
+    "build:templates": "node scripts/build-templates.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "transpile:electron": "tsc -p src/electron/tsconfig.json",
@@ -18,7 +19,10 @@
     "make": "electron-forge make"
   },
   "dependencies": {
+    "chalk": "^5.5.0",
     "electron-squirrel-startup": "^1.0.1",
+    "js-yaml": "^4.1.0",
+    "jszip": "^3.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -33,6 +37,7 @@
     "@electron/fuses": "^1.8.0",
     "@eslint/js": "^9.30.1",
     "@types/electron": "^1.4.38",
+    "@types/js-yaml": "^4.0.9",
     "@types/jszip": "^3.4.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
@@ -46,6 +51,7 @@
     "npm-run-all": "^4.1.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "yargs": "^18.0.0"
   }
 }

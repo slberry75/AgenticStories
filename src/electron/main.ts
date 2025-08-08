@@ -36,14 +36,5 @@ app.on('ready', () => {
         return projInfo;
     });
 
-    // ipcMain.handle('projects:create', (project:CreateProjectParams) =>{
-    //     return Promise.resolve({
-    //         name: project.name,
-    //         description: project.description,
-    //         createdAt: new Date(),
-    //         lastModifiedAt: new Date(),
-    //         projectPath: project.projectPath
-    //     });
-    // });
     pollRecentProjects(mainWindow);
 });

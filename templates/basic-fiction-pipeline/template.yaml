@@ -1,0 +1,25 @@
+name: Basic Fiction Pipeline
+description: A basic fiction pipeline template for Agentic Stories
+version: 0.1.0
+author: Agentic Stories Team
+
+workflows:
+  - name: Story Development
+    description: From concept to detailed outline
+    agents:
+      - name: market-research
+        type: requirements-collector
+        prompt_file: agents/market-research.md
+      - name: character-development
+        type: character-development
+        prompt_file: agents/character-development.md
+      - name: story-outline
+        type: story-structure
+        prompt_file: agents/story-outline.md
+  
+  - name: Writing
+    description: From outline to first draft
+    agents:
+      - name: chapter-writer
+        type: content-generator
+        prompt_file: agents/chapter-writer.md

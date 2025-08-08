@@ -1,45 +1,67 @@
-import { ServiceError, ServiceResult } from "../../shared/lib.js";
+import { ServiceError, ServiceResult } from "../../shared/lib/service-objects.js";
 import fs from 'fs';
 import path from "path";
-
+import { ZipUtils }  from "../../shared/utils/zip-utils.js";
+import { PROJECT_FILES, PROJECT_EXTENSIONS } from "../../shared/lib/project-constants.js";    
+import JSZip from "jszip";
 export class ProjectValidator {
-    static async validateProjectExists(projectPath: string) : Promise<ServiceResult<void>> {
-        const projectAccess = await this.haveFileAccess(projectPath);
+    static async validateArchiveExists(filePath: string) : Promise<ServiceResult<void>> {
+        const projectAccess = await this.haveFileAccess(filePath);
+        if (!filePath.toLowerCase().endsWith(PROJECT_EXTENSIONS.ARCHIVE)) {
+            return ServiceResult.fail(
+                new ServiceError('input', 'Invalid file type.  Expected .ags archive file.')
+            )
+        }
         if (!projectAccess.success) {
             return projectAccess;
         }
+        const fileStats = await fs.promises.stat(filePath);
+        if (fileStats.size <= 0) {
+            return ServiceResult.fail(
+                new ServiceError('validation', 'Project archive file is empty', filePath)
+            )
+        }
+        if (fileStats.isDirectory()) {
+            return ServiceResult.fail(
+                new ServiceError('validation', 'Selected project is a directory', filePath)
+            )
+        }
         return ServiceResult.success();
     }
 
-    static async validateProjectStructure(projectPath:string) : Promise<ServiceResult<void>> {
-        const projectExists = await this.validateProjectExists(projectPath); 
-        if (!projectExists.success) {
-            return projectExists;
+    static async validateArchiveStructure(filePath:string) : Promise<ServiceResult<void>> {
+        const archiveExists = await this.validateArchiveExists(filePath);
+        if (!archiveExists.success) {
+            return archiveExists;
         }
-        const projectFilePath = path.join(projectPath, "project.json");
-        const workflowDir = path.join(projectPath, "workflow");
-        const workflowFilePath = path.join(workflowDir, "workflow.yaml");
-
-        const projFileExists = await this.haveFileAccess(projectFilePath);
-        if (!projFileExists.success){
-            return projFileExists;
-        }
-        const workflowDirExists = await this.haveFileAccess(workflowDir);
-        if (!workflowDirExists.success) {
-            return workflowDirExists;
-        }
-
-        var workflowFileExists = await this.haveFileAccess(workflowFilePath);
-        if (!workflowFileExists.success) {
-            return workflowFileExists;
-        }
+        const zipResult = await ZipUtils.loadZipFile(filePath);
         
+        if (!zipResult.success ) {
+            return ServiceResult.fail(
+                zipResult.error 
+                ?? new ServiceError('validation', 'Failed to load project archive', filePath)
+            );
+        }
+        const zip = zipResult.data as JSZip;
+        const projectFile = ZipUtils.getZipFile(zip, PROJECT_FILES.METADATA);
+        if (projectFile === null) {
+            return ServiceResult.fail(
+                new ServiceError('validation', 'project metadata is missing')
+            )
+        }
+
+        const workflowFile = ZipUtils.getZipFile(zipResult.data as JSZip, PROJECT_FILES.WORKFLOW_CONFIGURATION);
+        if (workflowFile === null) {
+            return ServiceResult.fail(
+                new ServiceError('validation', 'workflow configuration is missing')
+            )
+        }
         return ServiceResult.success();
     }
 
-    private static async haveFileAccess(filePath:string): Promise<ServiceResult<void>> {
+    private static async haveFileAccess(filePath:string, permissions = fs.constants.R_OK): Promise<ServiceResult<void>> {
         try {
-            await fs.promises.access(filePath, fs.constants.R_OK | fs.constants.W_OK);
+            await fs.promises.access(filePath, permissions);
             return ServiceResult.success();
         }
         catch {

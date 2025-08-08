@@ -2,7 +2,7 @@ import app from 'electron';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
-import { ServiceResult } from '../shared/lib.js';
+import { ServiceResult } from '../shared/lib/service-objects.js';
 
 export const isDev = () => process.env.NODE_ENV === 'development';
 

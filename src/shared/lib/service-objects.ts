@@ -1,5 +1,5 @@
 export class ServiceError {
-    type: ServiceErrorTypes//'filesystem'|'validation'|'input'|'service'|'other';
+    type: ServiceErrorTypes;
     message:string;
     details?:string;
 
